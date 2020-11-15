@@ -52,11 +52,12 @@ def uvd2xyz(uvd, cam_param, bbox, root_depth, pose_scale):
     uv = uvd[:, :, :2] * bbox[:, :, 2:4] + bbox[:, :, :2]  # B x M x 2
 
     depth = uvd[:, :, 2] * pose_scale.unsqueeze(-1).expand_as(uvd[:, :, 2]) \
-            + root_depth.unsqueeze(-1).expand_as(uvd[:, :, 2])  # B x M
+        + root_depth.unsqueeze(-1).expand_as(uvd[:, :, 2])  # B x M
 
     '''2. uvd->xyz'''
     cam_param = cam_param.unsqueeze(1).expand(-1, uvd.size(1), -1)  # B x M x 4
-    xy = ((uv - cam_param[:, :, 2:4]) / cam_param[:, :, :2]) * depth.unsqueeze(-1).expand_as(uv)  # B x M x 2
+    xy = ((uv - cam_param[:, :, 2:4]) / cam_param[:, :, :2]) * \
+        depth.unsqueeze(-1).expand_as(uv)  # B x M x 2
 
     return torch.cat((xy, depth.unsqueeze(-1)), -1)  # B x M x 3
 
@@ -118,7 +119,8 @@ def crop_pad_im_from_bounding_rect(im, bb):
     :param bb: x, y, w, h (may exceed the image region)
     :return: cropped image
     """
-    crop_im = im[max(0, bb[1]):min(bb[1] + bb[3], im.shape[0]), max(0, bb[0]):min(bb[0] + bb[2], im.shape[1]), :]
+    crop_im = im[max(0, bb[1]):min(bb[1] + bb[3], im.shape[0]),
+                 max(0, bb[0]):min(bb[0] + bb[2], im.shape[1]), :]
 
     if bb[1] < 0:
         crop_im = cv2.copyMakeBorder(crop_im, -bb[1], 0, 0, 0,  # top, bottom, left, right, bb[3]-crop_im.shape[0]

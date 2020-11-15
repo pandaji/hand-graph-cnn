@@ -117,12 +117,12 @@ def sparse_python_to_torch(sp_python):
 
 
 def perm_index_reverse(indices):
-  indices_reverse = np.copy(indices)
+    indices_reverse = np.copy(indices)
 
-  for i, j in enumerate(indices):
-    indices_reverse[j] = i
+    for i, j in enumerate(indices):
+        indices_reverse[j] = i
 
-  return indices_reverse
+    return indices_reverse
 
 
 def build_hand_graph(graph_template_path, output_dir):
@@ -150,14 +150,15 @@ def build_hand_graph(graph_template_path, output_dir):
         np.save(graph_dict_path, graph_dict)
     else:
         logger.info("Load saved graph from {}.".format(graph_dict_path))
-        graph_dict = np.load(graph_dict_path).item()
+        graph_dict = np.load(graph_dict_path, allow_pickle=True).item()
         hand_mesh_adj = graph_dict['hand_mesh_adj']
         graph_Adj = graph_dict['coarsen_graphs_Adj']
         graph_L = graph_dict['coarsen_graphs_L']
         graph_perm = graph_dict['graph_perm']
 
     for i, g in enumerate(graph_L):
-        logger.info("Layer {0}: M_{0} = |V| = {1} nodes, |E| = {2} edges".format(i, g.shape[0], graph_Adj[i].nnz // 2))
+        logger.info("Layer {0}: M_{0} = |V| = {1} nodes, |E| = {2} edges".format(
+            i, g.shape[0], graph_Adj[i].nnz // 2))
 
     graph_mask = torch.from_numpy((np.array(graph_perm) < hand_tri.max() + 1).astype(float)).float()
     graph_mask = graph_mask.unsqueeze(-1).expand(-1, 3)  # V x 3

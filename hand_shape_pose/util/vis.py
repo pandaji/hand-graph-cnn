@@ -50,11 +50,13 @@ def draw_mesh(mesh_renderer, image, cam_param, box, mesh_xyz):
     :return:
     """
     resize_ratio = float(image.shape[0]) / box[2]
-    cam_for_render = np.array([cam_param[0], cam_param[2] - box[0], cam_param[3] - box[1]]) * resize_ratio
+    cam_for_render = np.array([cam_param[0], cam_param[2] - box[0],
+                               cam_param[3] - box[1]]) * resize_ratio
 
     rend_img_overlay = mesh_renderer(mesh_xyz, cam=cam_for_render, img=image, do_alpha=True)
-    vps = [60.0, -60.0]
-    rend_img_vps = [mesh_renderer.rotated(mesh_xyz, vp, cam=cam_for_render, img_size=image.shape[:2]) for vp in vps]
+    vps = [0.0, -60.0]
+    rend_img_vps = [mesh_renderer.rotated(
+        mesh_xyz, vp, cam=cam_for_render, img_size=image.shape[:2]) for vp in vps]
 
     return rend_img_overlay, rend_img_vps[0], rend_img_vps[1]
 
@@ -94,7 +96,8 @@ def draw_2d_skeleton(image, pose_uv):
                 color=color_hand_joints[joint_ind] * np.array(255), thickness=int(line_wd),
                 lineType=cv2.CV_AA if cv2.__version__.startswith('2') else cv2.LINE_AA)
         else:
-            joint_2 = pose_uv[joint_ind - 1, 0].astype('int32'), pose_uv[joint_ind - 1, 1].astype('int32')
+            joint_2 = pose_uv[joint_ind - 1,
+                              0].astype('int32'), pose_uv[joint_ind - 1, 1].astype('int32')
             cv2.line(
                 skeleton_overlay, joint_2, joint,
                 color=color_hand_joints[joint_ind] * np.array(255), thickness=int(line_wd),
@@ -112,7 +115,8 @@ def draw_3d_skeleton(pose_cam_xyz, image_size):
     assert pose_cam_xyz.shape[0] == 21
 
     fig = plt.figure()
-    fig.set_size_inches(float(image_size[0]) / fig.dpi, float(image_size[1]) / fig.dpi, forward=True)
+    fig.set_size_inches(float(image_size[0]) / fig.dpi,
+                        float(image_size[1]) / fig.dpi, forward=True)
 
     ax = plt.subplot(111, projection='3d')
     marker_sz = 15
@@ -173,11 +177,13 @@ def save_batch_image_with_mesh_joints(mesh_renderer, batch_images, cam_params, b
         pose_uv = est_pose_uv[id_image].numpy()
         pose_xyz = est_pose_cam_xyz[id_image].numpy()
 
-        rend_img_overlay, rend_img_vp1, rend_img_vp2 = draw_mesh(mesh_renderer, image, cam_param, box, mesh_xyz)
+        rend_img_overlay, rend_img_vp1, rend_img_vp2 = draw_mesh(
+            mesh_renderer, image, cam_param, box, mesh_xyz)
         skeleton_overlay = draw_2d_skeleton(image, pose_uv)
         skeleton_3d = draw_3d_skeleton(pose_xyz, image.shape[:2])
 
-        img_list = [image, rend_img_overlay, rend_img_vp1, rend_img_vp2, skeleton_overlay, skeleton_3d]
+        img_list = [image, rend_img_overlay, rend_img_vp1,
+                    rend_img_vp2, skeleton_overlay, skeleton_3d]
 
         height_begin = (image_height + padding) * id_image
         height_end = height_begin + image_height
